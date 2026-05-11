@@ -1,12 +1,14 @@
 import {
-  evidenceItems,
   generatePacket,
   packetMetrics,
+  readinessReport,
   riskFlags
 } from "@/lib/evidence";
+import { evidenceItems, reviewedProject } from "@/data/evidence";
 
 const packet = generatePacket(evidenceItems);
 const metrics = packetMetrics(evidenceItems);
+const readiness = readinessReport(evidenceItems);
 
 const statusClass: Record<string, string> = {
   verified: "statusVerified",
@@ -28,10 +30,38 @@ export default function Home() {
           </p>
         </div>
         <div className="packetPreview" aria-label="Proof packet summary">
-          <span className="previewLabel">Packet readiness</span>
+          <span className="previewLabel">{readiness.label}</span>
           <strong>{metrics.verifiedCount}/{metrics.totalCount}</strong>
           <span>evidence points verified</span>
+          <small>{readiness.nextAction}</small>
         </div>
+      </section>
+
+      <section className="caseSummary" aria-label="Reviewed project snapshot">
+        <div>
+          <span className="sectionLabel">Reviewed project</span>
+          <h2>{reviewedProject.name}</h2>
+        </div>
+        <dl>
+          <div>
+            <dt>Repository</dt>
+            <dd>{reviewedProject.repo}</dd>
+          </div>
+          <div>
+            <dt>Commit</dt>
+            <dd>{reviewedProject.commit.slice(0, 12)}</dd>
+          </div>
+          <div>
+            <dt>Last checked</dt>
+            <dd>{reviewedProject.checkedAt}</dd>
+          </div>
+          <div>
+            <dt>Deploy</dt>
+            <dd>
+              <a href={reviewedProject.deployUrl}>{reviewedProject.deployUrl}</a>
+            </dd>
+          </div>
+        </dl>
       </section>
 
       <section className="dashboard" aria-label="Evidence dashboard">
@@ -52,14 +82,32 @@ export default function Home() {
                 <p>{item.summary}</p>
                 <dl>
                   <div>
+                    <dt>Collected</dt>
+                    <dd>{item.collectedAt}</dd>
+                  </div>
+                  <div>
                     <dt>Source</dt>
-                    <dd>{item.source}</dd>
+                    <dd>
+                      {item.sourceUrl ? (
+                        <a href={item.sourceUrl}>{item.source}</a>
+                      ) : (
+                        item.source
+                      )}
+                    </dd>
                   </div>
                   <div>
                     <dt>Reviewer value</dt>
                     <dd>{item.reviewerValue}</dd>
                   </div>
+                  <div>
+                    <dt>Boundary</dt>
+                    <dd>{item.redactionBoundary}</dd>
+                  </div>
                 </dl>
+                <div className="actionStrip">
+                  <span>{item.evidenceType}</span>
+                  <strong>{item.recommendedAction}</strong>
+                </div>
               </article>
             ))}
           </div>
@@ -70,7 +118,9 @@ export default function Home() {
             <p className="sectionLabel">Generated packet</p>
             <h2>Markdown handoff</h2>
           </div>
-          <pre>{packet}</pre>
+          <pre tabIndex={0} aria-label="Generated Markdown proof packet">
+            {packet}
+          </pre>
           <div className="riskBox">
             <h3>Risk flags</h3>
             <ul>

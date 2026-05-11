@@ -99,6 +99,37 @@ h1 {
   line-height: 1;
 }
 
+.packetPreview small {
+  color: #d5e3df;
+  line-height: 1.45;
+}
+
+.caseSummary {
+  display: grid;
+  grid-template-columns: minmax(220px, 0.7fr) minmax(0, 1.3fr);
+  gap: 24px;
+  align-items: start;
+  border-bottom: 1px solid var(--line);
+  padding: 24px 0;
+}
+
+.caseSummary h2 {
+  margin: 0;
+  font-size: clamp(1.8rem, 4vw, 3rem);
+  line-height: 1;
+}
+
+.caseSummary dl {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+a {
+  color: var(--accent-strong);
+  font-weight: 800;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
 .dashboard {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
@@ -181,6 +212,32 @@ dd {
   line-height: 1.45;
 }
 
+.actionStrip {
+  display: flex;
+  gap: 12px;
+  align-items: start;
+  justify-content: space-between;
+  border-top: 1px solid var(--line);
+  padding-top: 14px;
+  color: var(--muted);
+  font-size: 0.9rem;
+  line-height: 1.45;
+}
+
+.actionStrip span {
+  flex: 0 0 auto;
+  border: 1px solid var(--line);
+  padding: 4px 8px;
+  color: var(--accent-strong);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.actionStrip strong {
+  font-weight: 700;
+}
+
 .packetPanel {
   position: sticky;
   top: 24px;
@@ -201,6 +258,11 @@ pre {
   font-size: 0.82rem;
   line-height: 1.6;
   white-space: pre-wrap;
+}
+
+pre:focus {
+  outline: 3px solid rgba(15, 109, 95, 0.45);
+  outline-offset: 3px;
 }
 
 .riskBox {
@@ -227,6 +289,7 @@ pre {
   }
 
   .hero,
+  .caseSummary,
   .dashboard {
     grid-template-columns: 1fr;
   }
@@ -242,5 +305,9 @@ pre {
 
   dl {
     grid-template-columns: 1fr;
+  }
+
+  .actionStrip {
+    display: grid;
   }
 }

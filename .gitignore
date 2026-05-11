@@ -3,6 +3,7 @@ node_modules/
 .vercel/
 out/
 dist/
+tsconfig.tsbuildinfo
 .env
 .env.*
 

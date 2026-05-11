@@ -3,6 +3,7 @@ import {
   type EvidenceItem,
   generatePacket,
   packetMetrics,
+  readinessReport,
   riskFlags
 } from "./evidence";
 
@@ -13,7 +14,12 @@ const fixture: EvidenceItem[] = [
     source: "npm run build",
     status: "verified",
     summary: "Production build completed.",
-    reviewerValue: "Confirms the app compiles."
+    reviewerValue: "Confirms the app compiles.",
+    evidenceType: "test",
+    collectedAt: "2026-05-10 20:19 America/Toronto",
+    decisionRationale: "Build proof is a required handoff gate.",
+    redactionBoundary: "Synthetic output only.",
+    recommendedAction: "Keep attached to the reviewer packet."
   },
   {
     id: "deploy",
@@ -21,7 +27,12 @@ const fixture: EvidenceItem[] = [
     source: "Vercel",
     status: "watch",
     summary: "Preview deploy pending.",
-    reviewerValue: "Confirms the app is public."
+    reviewerValue: "Confirms the app is public.",
+    evidenceType: "deploy",
+    collectedAt: "2026-05-10 20:19 America/Toronto",
+    decisionRationale: "The reviewer needs a public URL before trusting polish claims.",
+    redactionBoundary: "No real customer data.",
+    recommendedAction: "Attach the production alias before marking ready."
   }
 ];
 
@@ -46,5 +57,29 @@ describe("evidence packet generation", () => {
     expect(packet).toContain("Verified evidence: 1/2");
     expect(packet).toContain("Build proof [verified]");
     expect(packet).toContain("Deploy proof [watch]");
+    expect(packet).toContain("Reviewer value: Confirms the app compiles.");
+    expect(packet).toContain("Redaction boundary: Synthetic output only.");
+  });
+
+  it("reports whether the packet is ready for reviewer handoff", () => {
+    const report = readinessReport(fixture);
+
+    expect(report.ready).toBe(false);
+    expect(report.label).toBe("Needs evidence");
+    expect(report.blockers).toEqual(["Deploy proof"]);
+    expect(report.nextAction).toBe("Resolve 1 watch item before handoff.");
+  });
+
+  it("normalizes Markdown-sensitive imported evidence text", () => {
+    const packet = generatePacket([
+      {
+        ...fixture[0],
+        title: "Build | proof",
+        summary: "Production\nbuild completed with `npm run build`."
+      }
+    ]);
+
+    expect(packet).toContain("Build / proof [verified]");
+    expect(packet).toContain("Production build completed with 'npm run build'.");
   });
 });

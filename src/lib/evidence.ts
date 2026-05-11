@@ -1,56 +1,36 @@
 export type EvidenceStatus = "verified" | "watch" | "missing";
+export type EvidenceType = "source" | "test" | "deploy" | "screenshot" | "decision";
 
 export type EvidenceItem = {
   id: string;
   title: string;
   source: string;
+  sourceUrl?: string;
   status: EvidenceStatus;
+  evidenceType: EvidenceType;
+  collectedAt: string;
   summary: string;
   reviewerValue: string;
+  decisionRationale: string;
+  redactionBoundary: string;
+  recommendedAction: string;
 };
 
-export const evidenceItems: EvidenceItem[] = [
-  {
-    id: "pr",
-    title: "Scoped implementation branch",
-    source: "GitHub PR #12",
-    status: "verified",
-    summary:
-      "The feature shipped in one branch with a narrow diff, reviewer notes, and no unrelated file churn.",
-    reviewerValue:
-      "Shows scope control and that the implementation can be inspected."
-  },
-  {
-    id: "tests",
-    title: "Behavior verification",
-    source: "npm run test / npm run build",
-    status: "verified",
-    summary:
-      "Unit tests cover the packet generator and the production build completes without type errors.",
-    reviewerValue:
-      "Separates working behavior from a static mockup."
-  },
-  {
-    id: "deploy",
-    title: "Public deploy evidence",
-    source: "Vercel preview URL",
-    status: "watch",
-    summary:
-      "Preview deployment is expected after the first Vercel run and should be attached to the packet.",
-    reviewerValue:
-      "Lets reviewers inspect the shipped surface without cloning locally."
-  },
-  {
-    id: "screenshots",
-    title: "Rendered UI proof",
-    source: "Playwright screenshot manifest",
-    status: "missing",
-    summary:
-      "A responsive screenshot set has not been attached yet for desktop and mobile verification.",
-    reviewerValue:
-      "Prevents claims about polish from relying only on source diffs."
-  }
-];
+export type ReadinessReport = {
+  ready: boolean;
+  label: "Ready for handoff" | "Needs evidence";
+  blockers: string[];
+  nextAction: string;
+};
+
+export function normalizePacketText(value: string) {
+  return value
+    .replace(/\r?\n|\r/g, " ")
+    .replace(/\|/g, "/")
+    .replace(/`/g, "'")
+    .replace(/\s+/g, " ")
+    .trim();
+}
 
 export function packetMetrics(items: EvidenceItem[]) {
   const verifiedCount = items.filter((item) => item.status === "verified").length;
@@ -69,14 +49,60 @@ export function riskFlags(items: EvidenceItem[]) {
     .map((item) => `${item.title}: ${item.status}`);
 }
 
+export function readinessReport(items: EvidenceItem[]): ReadinessReport {
+  const blockers = items
+    .filter((item) => item.status !== "verified")
+    .map((item) => item.title);
+  const watchCount = items.filter((item) => item.status === "watch").length;
+  const missingCount = items.filter((item) => item.status === "missing").length;
+  const issueCount = watchCount + missingCount;
+
+  if (issueCount === 0) {
+    return {
+      ready: true,
+      label: "Ready for handoff",
+      blockers,
+      nextAction: "Packet can be shared with a reviewer."
+    };
+  }
+
+  const issueLabel =
+    issueCount === 1
+      ? watchCount === 1
+        ? "watch item"
+        : "missing item"
+      : "items";
+
+  return {
+    ready: false,
+    label: "Needs evidence",
+    blockers,
+    nextAction: `Resolve ${issueCount} ${issueLabel} before handoff.`
+  };
+}
+
 export function generatePacket(items: EvidenceItem[]) {
   const metrics = packetMetrics(items);
   const evidenceLines = items
-    .map(
-      (item) =>
-        `- ${item.title} [${item.status}]: ${item.summary} Source: ${item.source}.`
-    )
+    .map((item) => {
+      const title = normalizePacketText(item.title);
+      const summary = normalizePacketText(item.summary);
+      const source = normalizePacketText(item.source);
+      const reviewerValue = normalizePacketText(item.reviewerValue);
+      const redactionBoundary = normalizePacketText(item.redactionBoundary);
+      const recommendedAction = normalizePacketText(item.recommendedAction);
+
+      return [
+        `- ${title} [${item.status}]: ${summary}`,
+        `  - Source: ${source}.`,
+        `  - Collected: ${normalizePacketText(item.collectedAt)}.`,
+        `  - Reviewer value: ${reviewerValue}.`,
+        `  - Redaction boundary: ${redactionBoundary}.`,
+        `  - Recommended action: ${recommendedAction}.`
+      ].join("\n");
+    })
     .join("\n");
+  const readiness = readinessReport(items);
 
   return [
     "# Reviewer Proof Packet",
@@ -87,6 +113,9 @@ export function generatePacket(items: EvidenceItem[]) {
     "",
     "## Evidence",
     evidenceLines,
+    "",
+    "## Handoff Readiness",
+    `${readiness.label}: ${readiness.nextAction}`,
     "",
     "## Reviewer Guidance",
     "Inspect verified items first, then ask for watch or missing evidence before treating the project as production-quality proof."
