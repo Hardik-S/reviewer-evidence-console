@@ -99,6 +99,45 @@ h1 {
   line-height: 1;
 }
 
+.previewMeta {
+  color: #d7e7e3;
+  font-size: 0.9rem;
+}
+
+.reviewerStrip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  border-bottom: 1px solid var(--line);
+  padding: 24px 0;
+}
+
+.reviewerStrip > div {
+  border-left: 4px solid var(--accent);
+  padding: 4px 0 4px 16px;
+}
+
+.reviewerStrip strong {
+  display: block;
+  margin-bottom: 6px;
+  font-size: 1.05rem;
+}
+
+.reviewerStrip p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.stripLabel {
+  display: block;
+  margin-bottom: 6px;
+  color: var(--accent-strong);
+  font-size: 0.74rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
 .dashboard {
   display: grid;
   grid-template-columns: minmax(0, 1.25fr) minmax(360px, 0.75fr);
@@ -181,6 +220,14 @@ dd {
   line-height: 1.45;
 }
 
+.sourceLink {
+  width: fit-content;
+  color: var(--accent-strong);
+  font-weight: 800;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 4px;
+}
+
 .packetPanel {
   position: sticky;
   top: 24px;
@@ -227,6 +274,7 @@ pre {
   }
 
   .hero,
+  .reviewerStrip,
   .dashboard {
     grid-template-columns: 1fr;
   }
