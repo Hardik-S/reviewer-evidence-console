@@ -58,7 +58,9 @@ body {
 h1,
 h2,
 h3,
-p {
+p,
+dd,
+a {
   overflow-wrap: anywhere;
 }
 
@@ -123,11 +125,36 @@ h1 {
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
+.caseSummary > *,
+.claimProof > *,
+.dashboard > * {
+  min-width: 0;
+}
+
 a {
   color: var(--accent-strong);
   font-weight: 800;
   text-decoration-thickness: 2px;
   text-underline-offset: 3px;
+}
+
+.claimProof {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
+  padding: 24px 0 0;
+}
+
+.claimProof > div {
+  border: 1px solid var(--line);
+  background: rgba(255, 253, 248, 0.72);
+  padding: 18px;
+}
+
+.claimProof p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
 }
 
 .dashboard {
@@ -247,6 +274,37 @@ dd {
   box-shadow: var(--shadow);
 }
 
+.packetActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.packetActions button,
+.packetActions a {
+  border: 1px solid var(--accent-strong);
+  background: transparent;
+  color: var(--accent-strong);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.86rem;
+  font-weight: 800;
+  padding: 8px 10px;
+  text-decoration: none;
+}
+
+.packetActions button {
+  background: var(--accent-strong);
+  color: var(--panel);
+}
+
+.packetActions button:focus-visible,
+.packetActions a:focus-visible {
+  outline: 3px solid rgba(15, 109, 95, 0.45);
+  outline-offset: 3px;
+}
+
 pre {
   max-height: 460px;
   overflow: auto;
@@ -290,12 +348,19 @@ pre:focus {
 
   .hero,
   .caseSummary,
+  .claimProof,
   .dashboard {
     grid-template-columns: 1fr;
   }
 
   h1 {
-    font-size: clamp(2.8rem, 16vw, 4.6rem);
+    font-size: clamp(2.7rem, 14vw, 4rem);
+  }
+
+  .heroText {
+    max-width: 32ch;
+    font-size: 1rem;
+    line-height: 1.6;
   }
 
   .packetPreview,
@@ -304,6 +369,10 @@ pre:focus {
   }
 
   dl {
+    grid-template-columns: 1fr;
+  }
+
+  .caseSummary dl {
     grid-template-columns: 1fr;
   }
 

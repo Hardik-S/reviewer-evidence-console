@@ -61,6 +61,17 @@ describe("evidence packet generation", () => {
     expect(packet).toContain("Redaction boundary: Synthetic output only.");
   });
 
+  it("includes source URLs when they are attached to evidence", () => {
+    const packet = generatePacket([
+      {
+        ...fixture[0],
+        sourceUrl: "https://example.test/commit/abc123"
+      }
+    ]);
+
+    expect(packet).toContain("Source URL: https://example.test/commit/abc123.");
+  });
+
   it("reports whether the packet is ready for reviewer handoff", () => {
     const report = readinessReport(fixture);
 
@@ -68,6 +79,23 @@ describe("evidence packet generation", () => {
     expect(report.label).toBe("Needs evidence");
     expect(report.blockers).toEqual(["Deploy proof"]);
     expect(report.nextAction).toBe("Resolve 1 watch item before handoff.");
+  });
+
+  it("reports ready when every evidence item is verified", () => {
+    const report = readinessReport([
+      fixture[0],
+      {
+        ...fixture[1],
+        status: "verified"
+      }
+    ]);
+
+    expect(report).toEqual({
+      ready: true,
+      label: "Ready for handoff",
+      blockers: [],
+      nextAction: "Packet can be shared with a reviewer."
+    });
   });
 
   it("normalizes Markdown-sensitive imported evidence text", () => {

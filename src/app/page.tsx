@@ -1,16 +1,18 @@
 import {
+  type EvidenceStatus,
   generatePacket,
   packetMetrics,
   readinessReport,
   riskFlags
 } from "@/lib/evidence";
 import { evidenceItems, reviewedProject } from "@/data/evidence";
+import { PacketActions } from "./PacketActions";
 
 const packet = generatePacket(evidenceItems);
 const metrics = packetMetrics(evidenceItems);
 const readiness = readinessReport(evidenceItems);
 
-const statusClass: Record<string, string> = {
+const statusClass: Record<EvidenceStatus, string> = {
   verified: "statusVerified",
   watch: "statusWatch",
   missing: "statusMissing"
@@ -64,8 +66,25 @@ export default function Home() {
         </dl>
       </section>
 
+      <section className="claimProof" aria-label="Claim to proof comparison">
+        <div>
+          <span className="sectionLabel">Portfolio claim</span>
+          <p>
+            This project proves shipped engineering work with auditable source,
+            verification, deployment, and visual evidence.
+          </p>
+        </div>
+        <div>
+          <span className="sectionLabel">Evidence that supports it</span>
+          <p>
+            The packet is anchored to commit {reviewedProject.commit.slice(0, 12)},
+            live deploy checks, repeatable tests, and an explicit screenshot gap.
+          </p>
+        </div>
+      </section>
+
       <section className="dashboard" aria-label="Evidence dashboard">
-        <div className="evidenceList">
+        <div className="evidenceList" id="evidence-cards">
           <div className="sectionHeader">
             <p className="sectionLabel">Source evidence</p>
             <h2>What the packet can prove</h2>
@@ -118,10 +137,11 @@ export default function Home() {
             <p className="sectionLabel">Generated packet</p>
             <h2>Markdown handoff</h2>
           </div>
+          <PacketActions packet={packet} />
           <pre tabIndex={0} aria-label="Generated Markdown proof packet">
             {packet}
           </pre>
-          <div className="riskBox">
+          <div className="riskBox" id="risk-flags">
             <h3>Risk flags</h3>
             <ul>
               {riskFlags(evidenceItems).map((flag) => (

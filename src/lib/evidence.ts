@@ -88,6 +88,9 @@ export function generatePacket(items: EvidenceItem[]) {
       const title = normalizePacketText(item.title);
       const summary = normalizePacketText(item.summary);
       const source = normalizePacketText(item.source);
+      const sourceUrl = item.sourceUrl
+        ? normalizePacketText(item.sourceUrl)
+        : "";
       const reviewerValue = normalizePacketText(item.reviewerValue);
       const redactionBoundary = normalizePacketText(item.redactionBoundary);
       const recommendedAction = normalizePacketText(item.recommendedAction);
@@ -95,11 +98,14 @@ export function generatePacket(items: EvidenceItem[]) {
       return [
         `- ${title} [${item.status}]: ${summary}`,
         `  - Source: ${source}.`,
+        sourceUrl ? `  - Source URL: ${sourceUrl}.` : "",
         `  - Collected: ${normalizePacketText(item.collectedAt)}.`,
         `  - Reviewer value: ${reviewerValue}.`,
         `  - Redaction boundary: ${redactionBoundary}.`,
         `  - Recommended action: ${recommendedAction}.`
-      ].join("\n");
+      ]
+        .filter(Boolean)
+        .join("\n");
     })
     .join("\n");
   const readiness = readinessReport(items);

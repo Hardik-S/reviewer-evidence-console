@@ -12,7 +12,8 @@ Most portfolios ask reviewers to trust claims. This product shows a stronger hab
 2. Check the reviewed-project snapshot for repo, commit, deploy URL, and last verification time.
 3. Inspect each evidence card for source, reviewer value, redaction boundary, and recommended action.
 4. Review the generated Markdown packet and note the readiness label before treating the project as finished proof.
-5. Inspect `src/data/evidence.ts`, `src/lib/evidence.ts`, and `src/lib/evidence.test.ts` to confirm the fixture boundary and packet logic.
+5. Use the packet actions to copy the Markdown, jump to source evidence, or review outstanding gaps.
+6. Inspect `src/data/evidence.ts`, `src/lib/evidence.ts`, and `src/lib/evidence.test.ts` to confirm the fixture boundary and packet logic.
 
 ## Stack Rationale
 
@@ -34,6 +35,7 @@ npm ci
 npm run test
 npm run typecheck
 npm run build
+npm run verify
 npm run dev
 ```
 
@@ -44,6 +46,7 @@ npm run dev
 Current verification target:
 
 ```powershell
+npm run verify
 npm run test
 npm run typecheck
 npm run build
@@ -59,7 +62,7 @@ Live verification:
 
 ## Fixture Provenance
 
-The app separates real public-safe project metadata from synthetic modeled evidence. The current fixture rows are documented in `docs/fixture-provenance.md`; rejected implementation alternatives and quality-pass decisions are recorded in `docs/decision-log.md`.
+The app separates real public-safe project metadata from synthetic modeled evidence. The current fixture rows are documented in `docs/fixture-provenance.md`; rejected implementation alternatives and quality-pass decisions are recorded in `docs/decision-log.md`; a committed synthetic packet example lives in `docs/proof-packet.example.md`.
 
 ## Product Decisions
 
@@ -68,10 +71,11 @@ The app separates real public-safe project metadata from synthetic modeled evide
 - Fixture records live in `src/data/evidence.ts`; packet metrics, readiness, normalization, and Markdown generation live in `src/lib/evidence.ts` so future workers can add real importers without rewriting the presentation layer.
 - The app intentionally includes decision notes and risks because reviewers need to see judgment, not just green checkmarks.
 - Screenshot evidence is intentionally marked as `watch` until a desktop/mobile screenshot manifest exists.
+- The generated packet includes source URLs when available so the copied artifact is not weaker than the visible UI.
 
 ## Future Work
 
 - Add importers for GitHub PR URLs, Vercel deploy logs, and Playwright screenshot manifests.
-- Add Markdown copy/export controls.
+- Add downloadable Markdown export once packet versioning exists.
 - Add a redaction pass before any real evidence is used in public packets.
 - Add responsive screenshot evidence to the proof packet itself.
